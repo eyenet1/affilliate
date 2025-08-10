@@ -8,7 +8,7 @@
     body {
         margin: 0;
         font-family: Arial, sans-serif;
-        background: radial-gradient(circle at top, #2a003f, #000);
+        background: radial-gradient(circle at center, #1a002b, #000);
         color: white;
         text-align: center;
         overflow-x: hidden;
@@ -18,88 +18,95 @@
     #ageGate {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.95);
+        background: black;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        z-index: 999;
+        z-index: 1000;
     }
+
     #ageGate h1 {
         font-size: 2em;
         margin-bottom: 20px;
-    }
-    .age-btn {
-        background: #8a2be2;
-        padding: 12px 30px;
-        margin: 10px;
-        border: none;
-        font-size: 1.2em;
-        color: white;
-        cursor: pointer;
-        border-radius: 30px;
-        animation: neonFlicker 3s infinite alternate;
-    }
-    .age-btn:hover {
-        background: #a84fff;
+        color: #ff00ff;
+        text-shadow: 0 0 10px #ff00ff;
     }
 
-    /* Main container fade in */
-    #mainContent {
+    .enter-btn {
+        padding: 15px 30px;
+        font-size: 1.2em;
+        color: white;
+        background: transparent;
+        border: 2px solid #ff00ff;
+        border-radius: 50px;
+        cursor: pointer;
+        animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite;
+        transition: background 0.3s;
+    }
+
+    .enter-btn:hover {
+        background: rgba(255, 0, 255, 0.2);
+    }
+
+    /* Main Content Styles */
+    .container {
         display: none;
+        padding: 20px;
         animation: fadeIn 1.5s ease-in-out;
     }
 
-    /* Circular photo with pulse and flicker */
+    /* Circular Model Photo */
     .model-photo {
-        width: 150px;
-        height: 150px;
+        width: 200px;
+        height: 200px;
         border-radius: 50%;
-        margin: 30px auto;
-        background: url('Zeh-SQ_H_400x400.jpg') center/cover no-repeat;
-        border: 4px solid #8a2be2;
-        animation: neonPulse 2s infinite alternate, neonFlicker 3s infinite alternate;
-        box-shadow: 0 0 20px #8a2be2;
+        margin: 20px auto;
+        border: 4px solid #ff00ff;
+        box-shadow: 0 0 20px #ff00ff;
+        animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite, pulse 3s infinite ease-in-out;
     }
 
-    /* Buttons */
+    /* Neon Buttons */
     .btn {
-        display: block;
-        width: 200px;
-        margin: 20px auto;
-        padding: 15px;
-        background: #8a2be2;
-        border: none;
+        display: inline-block;
+        margin: 15px;
+        padding: 15px 40px;
+        font-size: 1.2em;
         color: white;
-        font-size: 1.1em;
-        border-radius: 30px;
+        background: transparent;
+        border: 2px solid #ff00ff;
+        border-radius: 50px;
         cursor: pointer;
         text-decoration: none;
-        animation: neonFlicker 3s infinite alternate;
-        transition: transform 0.3s ease;
+        animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite;
+        transition: background 0.3s;
     }
+
     .btn:hover {
-        transform: scale(1.05);
+        background: rgba(255, 0, 255, 0.2);
     }
 
     /* Animations */
+    @keyframes neonGlow {
+        0% { box-shadow: 0 0 5px #ff00ff; }
+        100% { box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff; }
+    }
+
     @keyframes neonFlicker {
-        0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-            text-shadow: 0 0 5px #8a2be2, 0 0 10px #8a2be2, 0 0 20px #8a2be2;
-            box-shadow: 0 0 5px #8a2be2, 0 0 10px #8a2be2, 0 0 20px #8a2be2;
-        }
-        20%, 24%, 55% {
-            text-shadow: none;
-            box-shadow: none;
-        }
+        0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+        20%, 24%, 55% { opacity: 0.8; }
+        22% { opacity: 0.6; }
     }
-    @keyframes neonPulse {
-        from { box-shadow: 0 0 10px #8a2be2, 0 0 20px #8a2be2; }
-        to { box-shadow: 0 0 25px #8a2be2, 0 0 50px #8a2be2; }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
     }
+
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 </style>
 </head>
@@ -108,25 +115,10 @@
 <!-- Age Gate -->
 <div id="ageGate">
     <h1>Are you 18 or older?</h1>
-    <button class="age-btn" onclick="enterSite()">Yes, Enter</button>
-    <button class="age-btn" onclick="window.location.href='https://google.com'">No, Leave</button>
+    <button class="enter-btn" onclick="enterSite()">Click to Enter</button>
 </div>
 
 <!-- Main Content -->
-<div id="mainContent">
-    <div class="model-photo"></div>
-    <h1>Exclusive VIP Offers</h1>
-    <a href="#" class="btn">🔥 Offer 1</a>
-    <a href="#" class="btn">💎 Offer 2</a>
-    <a href="#" class="btn">🚀 Offer 3</a>
-</div>
-
-<script>
-function enterSite() {
-    document.getElementById("ageGate").style.display = "none";
-    document.getElementById("mainContent").style.display = "block";
-}
-</script>
-
-</body>
-</html>
+<div class="container" id="mainContent">
+    <img src="Zeh-SQ_H_400x400.jpg" alt="Model" class="model-photo">
+    <h1>Ex
