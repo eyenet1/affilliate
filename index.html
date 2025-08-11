@@ -1,238 +1,127 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- Add this inside <body> just before the closing </body> -->
+<div id="chatWidget">
+  <div id="chatHeader" onclick="toggleChat()">💬 Chat with Me</div>
+  <div id="chatBody">
+    <div id="messages"></div>
+    <div id="typingStatus"></div>
+    <div id="chatInputArea">
+      <input type="text" id="chatInput" placeholder="Type your message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
 
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: radial-gradient(circle at center, #1a002b, #000);
-    color: white;
-    text-align: center;
-    overflow-x: hidden;
-  }
-
-  /* Age Gate Styles */
-  #ageGate {
+  /* Chat Widget Styles */
+  #chatWidget {
     position: fixed;
-    inset: 0;
-    background: black;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-
-  #ageGate h1 {
-    font-size: 2em;
-    margin-bottom: 20px;
-    color: #ff00ff;
-    text-shadow: 0 0 10px #ff00ff;
-  }
-
-  .enter-btn {
-    padding: 15px 30px;
-    font-size: 1.2em;
-    color: white;
-    background: transparent;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    font-size: 14px;
+    background: rgba(0, 0, 0, 0.9);
     border: 2px solid #ff00ff;
-    border-radius: 50px;
-    cursor: pointer;
-    animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite;
-    transition: background 0.3s;
-  }
-
-  .enter-btn:hover {
-    background: rgba(255, 0, 255, 0.2);
-  }
-
-  /* Main Content Styles */
-  .container {
-    display: none;
-    padding: 20px;
-    animation: fadeIn 1.5s ease-in-out;
-  }
-
-  /* Circular Model Photo */
-  .model-photo {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    margin: 20px auto;
-    border: 4px solid #ff00ff;
-    box-shadow: 0 0 20px #ff00ff;
-    animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite,
-      pulse 3s infinite ease-in-out;
-  }
-
-  /* Short Bio */
-  .bio {
-    font-size: 1.1em;
-    max-width: 500px;
-    margin: 15px auto 10px;
-    line-height: 1.5;
-    color: #fff;
-    text-shadow: 0 0 5px #ff00ff;
-    animation: fadeIn 2s ease-in-out;
-  }
-
-  /* Neon Buttons */
-  .btn {
-    display: inline-block;
-    margin: 15px;
-    padding: 15px 40px;
-    font-size: 1.2em;
-    color: white;
-    background: transparent;
-    border: 2px solid #ff00ff;
-    border-radius: 50px;
-    cursor: pointer;
-    text-decoration: none;
-    animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite;
-    transition: background 0.3s;
-  }
-
-  .btn:hover {
-    background: rgba(255, 0, 255, 0.2);
-  }
-
-  /* Video Styles */
-  .teaser-video {
-    width: 320px;
-    height: 180px;
-    border: 3px solid #ff00ff;
     border-radius: 10px;
-    margin: 0 auto 15px;
-    box-shadow: 0 0 20px #ff00ff;
+    box-shadow: 0 0 15px #ff00ff;
+    z-index: 2000;
+    overflow: hidden;
   }
-
-  /* Call to Action Text */
-  .cta-text {
-    font-size: 1.2em;
-    margin-bottom: 20px;
-    color: #ff00ff;
-    text-shadow: 0 0 8px #ff00ff;
+  #chatHeader {
+    background: #ff00ff;
+    color: white;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
     font-weight: bold;
   }
-
-  /* Animations */
-  @keyframes neonGlow {
-    0% {
-      box-shadow: 0 0 5px #ff00ff;
-    }
-    100% {
-      box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
-    }
+  #chatBody {
+    display: none;
+    flex-direction: column;
+    height: 300px;
   }
-
-  @keyframes neonFlicker {
-    0%,
-    19%,
-    21%,
-    23%,
-    25%,
-    54%,
-    56%,
-    100% {
-      opacity: 1;
-    }
-    20%,
-    24%,
-    55% {
-      opacity: 0.8;
-    }
-    22% {
-      opacity: 0.6;
-    }
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
   }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
+  .message {
+    margin-bottom: 6px;
   }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+  .user {
+    color: #0ff;
+    text-align: right;
+  }
+  .model {
+    color: #ffb6ff;
+    text-align: left;
+  }
+  #typingStatus {
+    font-size: 12px;
+    color: #999;
+    padding-left: 8px;
+  }
+  #chatInputArea {
+    display: flex;
+    border-top: 1px solid #ff00ff;
+  }
+  #chatInput {
+    flex: 1;
+    padding: 6px;
+    border: none;
+    outline: none;
+    background: black;
+    color: white;
+  }
+  #chatInput::placeholder {
+    color: #888;
+  }
+  #chatInputArea button {
+    background: #ff00ff;
+    border: none;
+    color: white;
+    padding: 0 12px;
+    cursor: pointer;
   }
 </style>
-</head>
-<body>
-  <!-- Age Gate -->
-  <div id="ageGate">
-    <h1>Are you 18 or older?</h1>
-    <button class="enter-btn" onclick="enterSite()">Click to Enter</button>
-  </div>
 
-  <!-- Main Content -->
-  <div class="container" id="mainContent">
+<script>
+  function toggleChat() {
+    const body = document.getElementById("chatBody");
+    body.style.display = body.style.display === "flex" ? "none" : "flex";
+  }
 
-    <img
-      src="Zeh-SQ_H_400x400.jpg"
-      alt="Model"
-      class="model-photo"
-    />
+  function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const msg = input.value.trim();
+    if (!msg) return;
+    addMessage("You", msg, "user");
+    input.value = "";
+    simulateModelReply();
+  }
 
-    <div class="bio">
-      💋 Naughty girl next door…<br />
-      🔥 Live shows, private vids, and secret chats you’ll never forget.<br />
-      ⬇ Pick your pleasure ⬇
-    </div>
+  function addMessage(sender, text, type) {
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("message", type);
+    msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    document.getElementById("messages").appendChild(msgDiv);
+    document.getElementById("messages").scrollTop =
+      document.getElementById("messages").scrollHeight;
+  }
 
-    <!-- Short Teaser Video placed below bio -->
-    <video
-      class="teaser-video"
-      autoplay
-      muted
-      loop
-      playsinline
-      src="intro1.mp4"
-      type="video/mp4"
-      preload="auto"
-    >
-      Your browser does not support the video tag.
-    </video>
-
-    <div class="cta-text">
-      Watch this teaser! join My Telegram.
-    </div>
-
-    <!-- PPD Download Link -->
-    <a
-      href="https://buymeacoffee.com/ladydanica"
-      target="_blank"
-      class="btn"
-      >🔥Call me now $3</a
-    >
-
-    <!-- Optional Other Links -->
-    <a
-      href="https://t.me/+kVpss2vCDU05YzE8"
-      target="_blank"
-      class="btn"
-      >Join Telegram</a
-    >
-  </div>
-
-  <script>
-    function enterSite() {
-      document.getElementById("ageGate").style.display = "none";
-      document.getElementById("mainContent").style.display = "block";
-    }
-  </script>
-</body>
-</html>
-
+  function simulateModelReply() {
+    const typing = document.getElementById("typingStatus");
+    typing.innerText = "Model is typing...";
+    setTimeout(() => {
+      typing.innerText = "";
+      const replies = [
+        "Hey baby 😘",
+        "Mmm, tell me more...",
+        "🔥 You're making me blush...",
+        "Want a private show? 😉"
+      ];
+      addMessage("Model", replies[Math.floor(Math.random() * replies.length)], "model");
+    }, 1500);
+  }
+</script>
