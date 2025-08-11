@@ -1,30 +1,240 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Stream</title>
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at center, #1a002b, #000);
+    color: white;
+    text-align: center;
+    overflow-x: hidden;
+  }
+
+  /* Age Gate Styles */
+  #ageGate {
+    position: fixed;
+    inset: 0;
+    background: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  #ageGate h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
+  }
+
+  .enter-btn {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    color: white;
+    background: transparent;
+    border: 2px solid #ff00ff;
+    border-radius: 50px;
+    cursor: pointer;
+    animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite;
+    transition: background 0.3s;
+  }
+
+  .enter-btn:hover {
+    background: rgba(255, 0, 255, 0.2);
+  }
+
+  /* Main Content Styles */
+  .container {
+    display: none;
+    padding: 20px;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+
+  /* Circular Model Photo */
+  .model-photo {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 20px auto;
+    border: 4px solid #ff00ff;
+    box-shadow: 0 0 20px #ff00ff;
+    animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite,
+      pulse 3s infinite ease-in-out;
+  }
+
+  /* Short Bio */
+  .bio {
+    font-size: 1.1em;
+    max-width: 500px;
+    margin: 15px auto 10px;
+    line-height: 1.5;
+    color: #fff;
+    text-shadow: 0 0 5px #ff00ff;
+    animation: fadeIn 2s ease-in-out;
+  }
+
+  /* Neon Buttons */
+  .btn {
+    display: inline-block;
+    margin: 15px;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    color: white;
+    background: transparent;
+    border: 2px solid #ff00ff;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    animation: neonGlow 1.5s infinite alternate, neonFlicker 2s infinite;
+    transition: background 0.3s;
+  }
+
+  .btn:hover {
+    background: rgba(255, 0, 255, 0.2);
+  }
+
+  /* Video Styles */
+  .teaser-video {
+    width: 320px;
+    height: 180px;
+    border: 3px solid #ff00ff;
+    border-radius: 10px;
+    margin: 0 auto 15px;
+    box-shadow: 0 0 20px #ff00ff;
+  }
+
+  /* Call to Action Text */
+  .cta-text {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    color: #ff00ff;
+    text-shadow: 0 0 8px #ff00ff;
+    font-weight: bold;
+  }
+
+  /* Animations */
+  @keyframes neonGlow {
+    0% {
+      box-shadow: 0 0 5px #ff00ff;
     }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    100% {
+      box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
     }
-  </style>
+  }
+
+  @keyframes neonFlicker {
+    0%,
+    19%,
+    21%,
+    23%,
+    25%,
+    54%,
+    56%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    24%,
+    55% {
+      opacity: 0.8;
+    }
+    22% {
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>
 </head>
 <body>
-  <iframe
-    src="https://meet.antmedia.io/Conference/h01T7mPT"
-    allow="camera; microphone; fullscreen; display-capture"
-  ></iframe>
+  <!-- Age Gate -->
+  <div id="ageGate">
+    <h1>Are you 18 or older?</h1>
+    <button class="enter-btn" onclick="enterSite()">Click to Enter</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container" id="mainContent">
+
+    <img
+      src="Zeh-SQ_H_400x400.jpg"
+      alt="Model"
+      class="model-photo"
+    />
+
+    <div class="bio">
+      💋 Naughty girl next door…<br />
+      🔥 Live shows, private vids, and secret chats you’ll never forget.<br />
+      ⬇ Pick your pleasure ⬇
+    </div>
+
+    <!-- Short Teaser Video placed below bio -->
+    <video
+      class="teaser-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      src="intro1.mp4"
+      type="video/mp4"
+      preload="auto"
+    >
+      Your browser does not support the video tag.
+    </video>
+
+    <div class="cta-text">
+      Watch this teaser! join My Telegram.
+    </div>
+
+    <!-- PPD Download Link -->
+    <a
+      href="https://buymeacoffee.com/ladydanica"
+      target="_blank"
+      class="btn"
+      >🔥Call me now $3</a
+    >
+
+    <!-- Optional Other Links -->
+    <a
+      href="https://t.me/+kVpss2vCDU05YzE8"
+      target="_blank"
+      class="btn"
+      >Join Telegram</a
+    >
+  </div>
+
+  <script>
+    function enterSite() {
+      document.getElementById("ageGate").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+    }
+  </script>
 </body>
 </html>
+
 
