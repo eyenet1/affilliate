@@ -1,127 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Model Chat — Live (Firebase)</title>
+<style>
+  /* (kept your original neon styles; added chat styles) */
+  body{margin:0;font-family:Arial, sans-serif;background:radial-gradient(circle at center,#1a002b,#000);color:#fff;text-align:center;overflow-x:hidden;}
+  .container{padding:20px;}
+  .model-photo{width:200px;height:200px;border-radius:50%;margin:20px auto;border:4px solid #ff00ff;box-shadow:0 0 20px #ff00ff;}
+  .bio{max-width:500px;margin:15px auto;color:#fff;text-shadow:0 0 5px #ff00ff;}
+  .teaser-video{width:320px;height:180px;border-radius:10px;border:3px solid #ff00ff;margin:0 auto;display:block;}
+  .btn{display:inline-block;margin:15px;padding:12px 28px;border-radius:50px;border:2px solid #ff00ff;background:transparent;color:#fff;text-decoration:none;}
+  /* Chat widget */
+  #chatWidget{position:fixed;right:20px;bottom:20px;width:320px;border-radius:10px;overflow:hidden;box-shadow:0 0 20px #ff00ff;background:rgba(0,0,0,0.95);border:2px solid #ff00ff;z-index:3000}
+  #chatHeader{background:#ff00ff;color:#000;padding:10px;font-weight:700;cursor:pointer;text-align:center}
+  #chatBody{display:flex;flex-direction:column;height:380px;min-height:200px}
+  #messages{flex:1;padding:10px;overflow-y:auto;color:#fff;font-size:14px}
+  .msg{margin-bottom:8px;padding:6px 8px;border-radius:8px;display:inline-block;max-width:85%}
+  .msg.user{background:rgba(0,255,255,0.06);align-self:flex-end;color:#0ff}
+  .msg.model{background:rgba(255,182,255,0.06);align-self:flex-start;color:#ffb6ff}
+  #typing{font-size:12px;color:#ccc;padding:4px 10px;min-height:18px}
+  #inputRow{display:flex;padding:8px;border-top:1px solid rgba(255,0,255,0.12)}
+  #chatInput{flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#000;color:#fff;outline:none}
+  #sendBtn{margin-left:8px;padding:8px 12px;border-radius:6px;border:none;background:#ff00ff;color:#000;cursor:pointer}
+  /* small screens */
+  @media(max-width:420px){#chatWidget{right:10px;left:10px;width:auto}}
+</style>
+</head>
+<body>
 
+<!-- Main content (your existing layout trimmed) -->
+<div class="container" id="mainContent">
+  <img src="Zeh-SQ_H_400x400.jpg" alt="Model" class="model-photo" />
+  <div class="bio">💋 Naughty girl next door… 🔥 Live shows, private vids, and secret chats you’ll never forget.</div>
+  <video class="teaser-video" autoplay muted loop playsinline src="intro1.mp4">Your browser doesn't support video</video>
+  <div style="margin-top:12px;">
+    <a class="btn" href="https://buymeacoffee.com/ladydanica" target="_blank">🔥Call me now $3</a>
+    <a class="btn" href="https://t.me/+kVpss2vCDU05YzE8" target="_blank">Join Telegram</a>
+  </div>
+</div>
 
-<!-- Add this inside <body> just before the closing </body> -->
-<div id="chatWidget">
-  <div id="chatHeader" onclick="toggleChat()">💬 Chat with Me</div>
-  <div id="chatBody">
-    <div id="messages"></div>
-    <div id="typingStatus"></div>
-    <div id="chatInputArea">
-      <input type="text" id="chatInput" placeholder="Type your message..." />
-      <button onclick="sendMessage()">Send</button>
+<!-- Chat widget -->
+<div id="chatWidget" aria-live="polite">
+  <div id="chatHeader">💬 Live Chat</div>
+  <div id="chatBody" style="display:none">
+    <div id="messages" role="log" aria-atomic="false"></div>
+    <div id="typing"></div>
+    <div id="inputRow">
+      <input id="chatInput" placeholder="Say hi..." autocomplete="off" />
+      <button id="sendBtn">Send</button>
     </div>
   </div>
 </div>
 
-<style>
-  /* Chat Widget Styles */
-  #chatWidget {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 280px;
-    font-size: 14px;
-    background: rgba(0, 0, 0, 0.9);
-    border: 2px solid #ff00ff;
-    border-radius: 10px;
-    box-shadow: 0 0 15px #ff00ff;
-    z-index: 2000;
-    overflow: hidden;
-  }
-  #chatHeader {
-    background: #ff00ff;
-    color: white;
-    padding: 8px;
-    text-align: center;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  #chatBody {
-    display: none;
-    flex-direction: column;
-    height: 300px;
-  }
-  #messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px;
-  }
-  .message {
-    margin-bottom: 6px;
-  }
-  .user {
-    color: #0ff;
-    text-align: right;
-  }
-  .model {
-    color: #ffb6ff;
-    text-align: left;
-  }
-  #typingStatus {
-    font-size: 12px;
-    color: #999;
-    padding-left: 8px;
-  }
-  #chatInputArea {
-    display: flex;
-    border-top: 1px solid #ff00ff;
-  }
-  #chatInput {
-    flex: 1;
-    padding: 6px;
-    border: none;
-    outline: none;
-    background: black;
-    color: white;
-  }
-  #chatInput::placeholder {
-    color: #888;
-  }
-  #chatInputArea button {
-    background: #ff00ff;
-    border: none;
-    color: white;
-    padding: 0 12px;
-    cursor: pointer;
-  }
-</style>
+<!-- Firebase + Chat logic -->
+<script type="module">
+  // 1) CDN imports (modular SDK)
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+  import { getDatabase, ref, push, onChildAdded, serverTimestamp, query, limitToLast } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
+  import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
-<script>
-  function toggleChat() {
-    const body = document.getElementById("chatBody");
-    body.style.display = body.style.display === "flex" ? "none" : "flex";
+  // 2) Replace this config with your Firebase project's config (from Firebase console)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  // UI refs
+  const chatHeader = document.getElementById('chatHeader');
+  const chatBody = document.getElementById('chatBody');
+  const messagesEl = document.getElementById('messages');
+  const inputEl = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const typingEl = document.getElementById('typing');
+
+  // Toggle chat open/close
+  chatHeader.addEventListener('click', () => {
+    chatBody.style.display = chatBody.style.display === 'flex' ? 'none' : 'flex';
+    if (chatBody.style.display === 'flex') inputEl.focus();
+  });
+
+  // Anonymous sign-in
+  async function anonSignIn() {
+    try {
+      await signInAnonymously(auth);
+    } catch (err) {
+      console.error('Anonymous sign-in failed:', err);
+    }
   }
 
-  function sendMessage() {
-    const input = document.getElementById("chatInput");
-    const msg = input.value.trim();
-    if (!msg) return;
-    addMessage("You", msg, "user");
-    input.value = "";
-    simulateModelReply();
+  // Track user
+  let currentUser = null;
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      // show chat on auth ready (optional)
+      // chatBody.style.display = 'flex';
+    } else {
+      currentUser = null;
+    }
+  });
+
+  // Start anonymous sign-in
+  anonSignIn();
+
+  // Path for chat messages
+  const CHAT_PATH = 'liveChat/defaultRoom';
+
+  // Add message to DB
+  async function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+    if (!currentUser) {
+      console.warn('User not signed in yet.');
+      return;
+    }
+    // push message
+    await push(ref(db, CHAT_PATH), {
+      uid: currentUser.uid,
+      text,
+      ts: Date.now()
+    });
+    inputEl.value = '';
   }
 
-  function addMessage(sender, text, type) {
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("message", type);
-    msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
-    document.getElementById("messages").appendChild(msgDiv);
-    document.getElementById("messages").scrollTop =
-      document.getElementById("messages").scrollHeight;
+  sendBtn.addEventListener('click', sendMessage);
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Listen for new messages (realtime)
+  const recent = query(ref(db, CHAT_PATH), limitToLast(200));
+  onChildAdded(recent, (snap) => {
+    const val = snap.val();
+    const isMe = auth.currentUser && val.uid === auth.currentUser.uid;
+    appendMessage(isMe ? 'You' : 'Model', val.text, isMe ? 'user' : 'model');
+  });
+
+  // Helper to render messages
+  function appendMessage(sender, text, cls) {
+    const d = document.createElement('div');
+    d.className = 'msg ' + cls;
+    d.innerHTML = `<strong>${sender}:</strong> ${escapeHtml(text)}`;
+    messagesEl.appendChild(d);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  function simulateModelReply() {
-    const typing = document.getElementById("typingStatus");
-    typing.innerText = "Model is typing...";
-    setTimeout(() => {
-      typing.innerText = "";
-      const replies = [
-        "Hey baby 😘",
-        "Mmm, tell me more...",
-        "🔥 You're making me blush...",
-        "Want a private show? 😉"
-      ];
-      addMessage("Model", replies[Math.floor(Math.random() * replies.length)], "model");
+  // Basic sanitize
+  function escapeHtml(str) {
+    return str.replace(/[&<>"'`]/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',"`":'&#96;'})[m]);
+  }
+
+  // OPTIONAL: Simulated model replies (if you want an automatic response living client-side)
+  // NOTE: In a real setup a model (another browser) or a bot would push messages into the same DB.
+  // -- uncomment below to let the site simulate a playful reply 2s after a user message:
+  /*
+  onChildAdded(recent, (snap) => {
+    const val = snap.val();
+    if (auth.currentUser && val.uid !== auth.currentUser.uid) return; // ignore others
+    // show typing, then push a simulated reply
+    typingEl.innerText = 'Model is typing...';
+    setTimeout(async () => {
+      typingEl.innerText = '';
+      await push(ref(db, CHAT_PATH), { uid: 'model', text: 'Hey babe 😉', ts: Date.now() });
     }, 1500);
-  }
+  });
+  */
+
 </script>
+</body>
+</html>
