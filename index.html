@@ -2,127 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Live Stream + Firebase Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Stream</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      background: #f4f4f4;
+      background: #000;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-    }
-    .stream {
-      flex: 2;
     }
     iframe {
       width: 100%;
       height: 100%;
-    }
-    .chat-container {
-      flex: 1;
-      background: white;
-      display: flex;
-      flex-direction: column;
-      border-top: 2px solid #ccc;
-    }
-    .messages {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-    }
-    .message {
-      padding: 5px 8px;
-      margin-bottom: 5px;
-      background: #f1f1f1;
-      border-radius: 5px;
-      word-wrap: break-word;
-    }
-    .input-area {
-      display: flex;
-      border-top: 1px solid #ddd;
-    }
-    .input-area input {
-      flex: 1;
-      padding: 10px;
       border: none;
-      outline: none;
-    }
-    .input-area button {
-      padding: 10px 20px;
-      border: none;
-      background: #28a745;
-      color: white;
-      cursor: pointer;
-    }
-    .input-area button:hover {
-      background: #218838;
     }
   </style>
 </head>
 <body>
-
-  <!-- Live Stream -->
-  <div class="stream">
-    <iframe
-      src="https://meet.antmedia.io/Conference/h01T7mPT"
-      style="border:none;"
-      allow="camera; microphone; fullscreen; display-capture"
-    ></iframe>
-  </div>
-
-  <!-- Firebase Chat -->
-  <div class="chat-container">
-    <div id="messages" class="messages"></div>
-    <div class="input-area">
-      <input type="text" id="messageInput" placeholder="Type a message..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
-
-  <script>
-    // TODO: Replace with your Firebase project config
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    // Init Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    const messagesRef = db.ref("messages");
-
-    // Display messages in real time
-    messagesRef.on("child_added", snapshot => {
-      const msg = snapshot.val();
-      const div = document.createElement("div");
-      div.classList.add("message");
-      div.textContent = msg.text;
-      document.getElementById("messages").appendChild(div);
-      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
-    });
-
-    // Send message
-    function sendMessage() {
-      const input = document.getElementById("messageInput");
-      const text = input.value.trim();
-      if (text) {
-        messagesRef.push({ text });
-        input.value = "";
-      }
-    }
-  </script>
-
+  <iframe
+    src="https://meet.antmedia.io/Conference/h01T7mPT"
+    allow="camera; microphone; fullscreen; display-capture"
+  ></iframe>
 </body>
 </html>
+
