@@ -1,181 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Model Chat — Live (Firebase)</title>
-<style>
-  /* (kept your original neon styles; added chat styles) */
-  body{margin:0;font-family:Arial, sans-serif;background:radial-gradient(circle at center,#1a002b,#000);color:#fff;text-align:center;overflow-x:hidden;}
-  .container{padding:20px;}
-  .model-photo{width:200px;height:200px;border-radius:50%;margin:20px auto;border:4px solid #ff00ff;box-shadow:0 0 20px #ff00ff;}
-  .bio{max-width:500px;margin:15px auto;color:#fff;text-shadow:0 0 5px #ff00ff;}
-  .teaser-video{width:320px;height:180px;border-radius:10px;border:3px solid #ff00ff;margin:0 auto;display:block;}
-  .btn{display:inline-block;margin:15px;padding:12px 28px;border-radius:50px;border:2px solid #ff00ff;background:transparent;color:#fff;text-decoration:none;}
-  /* Chat widget */
-  #chatWidget{position:fixed;right:20px;bottom:20px;width:320px;border-radius:10px;overflow:hidden;box-shadow:0 0 20px #ff00ff;background:rgba(0,0,0,0.95);border:2px solid #ff00ff;z-index:3000}
-  #chatHeader{background:#ff00ff;color:#000;padding:10px;font-weight:700;cursor:pointer;text-align:center}
-  #chatBody{display:flex;flex-direction:column;height:380px;min-height:200px}
-  #messages{flex:1;padding:10px;overflow-y:auto;color:#fff;font-size:14px}
-  .msg{margin-bottom:8px;padding:6px 8px;border-radius:8px;display:inline-block;max-width:85%}
-  .msg.user{background:rgba(0,255,255,0.06);align-self:flex-end;color:#0ff}
-  .msg.model{background:rgba(255,182,255,0.06);align-self:flex-start;color:#ffb6ff}
-  #typing{font-size:12px;color:#ccc;padding:4px 10px;min-height:18px}
-  #inputRow{display:flex;padding:8px;border-top:1px solid rgba(255,0,255,0.12)}
-  #chatInput{flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#000;color:#fff;outline:none}
-  #sendBtn{margin-left:8px;padding:8px 12px;border-radius:6px;border:none;background:#ff00ff;color:#000;cursor:pointer}
-  /* small screens */
-  @media(max-width:420px){#chatWidget{right:10px;left:10px;width:auto}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live Stream + Firebase Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .stream {
+      flex: 2;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+    }
+    .chat-container {
+      flex: 1;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      border-top: 2px solid #ccc;
+    }
+    .messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .message {
+      padding: 5px 8px;
+      margin-bottom: 5px;
+      background: #f1f1f1;
+      border-radius: 5px;
+      word-wrap: break-word;
+    }
+    .input-area {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+    .input-area button {
+      padding: 10px 20px;
+      border: none;
+      background: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    .input-area button:hover {
+      background: #218838;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Main content (your existing layout trimmed) -->
-<div class="container" id="mainContent">
-  <img src="Zeh-SQ_H_400x400.jpg" alt="Model" class="model-photo" />
-  <div class="bio">💋 Naughty girl next door… 🔥 Live shows, private vids, and secret chats you’ll never forget.</div>
-  <video class="teaser-video" autoplay muted loop playsinline src="intro1.mp4">Your browser doesn't support video</video>
-  <div style="margin-top:12px;">
-    <a class="btn" href="https://buymeacoffee.com/ladydanica" target="_blank">🔥Call me now $3</a>
-    <a class="btn" href="https://t.me/+kVpss2vCDU05YzE8" target="_blank">Join Telegram</a>
+  <!-- Live Stream -->
+  <div class="stream">
+    <iframe
+      src="https://meet.antmedia.io/Conference/h01T7mPT"
+      style="border:none;"
+      allow="camera; microphone; fullscreen; display-capture"
+    ></iframe>
   </div>
-</div>
 
-<!-- Chat widget -->
-<div id="chatWidget" aria-live="polite">
-  <div id="chatHeader">💬 Live Chat</div>
-  <div id="chatBody" style="display:none">
-    <div id="messages" role="log" aria-atomic="false"></div>
-    <div id="typing"></div>
-    <div id="inputRow">
-      <input id="chatInput" placeholder="Say hi..." autocomplete="off" />
-      <button id="sendBtn">Send</button>
+  <!-- Firebase Chat -->
+  <div class="chat-container">
+    <div id="messages" class="messages"></div>
+    <div class="input-area">
+      <input type="text" id="messageInput" placeholder="Type a message..." />
+      <button onclick="sendMessage()">Send</button>
     </div>
   </div>
-</div>
 
-<!-- Firebase + Chat logic -->
-<script type="module">
-  // 1) CDN imports (modular SDK)
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-  import { getDatabase, ref, push, onChildAdded, serverTimestamp, query, limitToLast } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
-  import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
 
-  // 2) Replace this config with your Firebase project's config (from Firebase console)
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    appId: "YOUR_APP_ID"
-  };
+  <script>
+    // TODO: Replace with your Firebase project config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const auth = getAuth(app);
+    // Init Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-  // UI refs
-  const chatHeader = document.getElementById('chatHeader');
-  const chatBody = document.getElementById('chatBody');
-  const messagesEl = document.getElementById('messages');
-  const inputEl = document.getElementById('chatInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const typingEl = document.getElementById('typing');
+    const messagesRef = db.ref("messages");
 
-  // Toggle chat open/close
-  chatHeader.addEventListener('click', () => {
-    chatBody.style.display = chatBody.style.display === 'flex' ? 'none' : 'flex';
-    if (chatBody.style.display === 'flex') inputEl.focus();
-  });
-
-  // Anonymous sign-in
-  async function anonSignIn() {
-    try {
-      await signInAnonymously(auth);
-    } catch (err) {
-      console.error('Anonymous sign-in failed:', err);
-    }
-  }
-
-  // Track user
-  let currentUser = null;
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUser = user;
-      // show chat on auth ready (optional)
-      // chatBody.style.display = 'flex';
-    } else {
-      currentUser = null;
-    }
-  });
-
-  // Start anonymous sign-in
-  anonSignIn();
-
-  // Path for chat messages
-  const CHAT_PATH = 'liveChat/defaultRoom';
-
-  // Add message to DB
-  async function sendMessage() {
-    const text = inputEl.value.trim();
-    if (!text) return;
-    if (!currentUser) {
-      console.warn('User not signed in yet.');
-      return;
-    }
-    // push message
-    await push(ref(db, CHAT_PATH), {
-      uid: currentUser.uid,
-      text,
-      ts: Date.now()
+    // Display messages in real time
+    messagesRef.on("child_added", snapshot => {
+      const msg = snapshot.val();
+      const div = document.createElement("div");
+      div.classList.add("message");
+      div.textContent = msg.text;
+      document.getElementById("messages").appendChild(div);
+      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
     });
-    inputEl.value = '';
-  }
 
-  sendBtn.addEventListener('click', sendMessage);
-  inputEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendMessage();
-  });
+    // Send message
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const text = input.value.trim();
+      if (text) {
+        messagesRef.push({ text });
+        input.value = "";
+      }
+    }
+  </script>
 
-  // Listen for new messages (realtime)
-  const recent = query(ref(db, CHAT_PATH), limitToLast(200));
-  onChildAdded(recent, (snap) => {
-    const val = snap.val();
-    const isMe = auth.currentUser && val.uid === auth.currentUser.uid;
-    appendMessage(isMe ? 'You' : 'Model', val.text, isMe ? 'user' : 'model');
-  });
-
-  // Helper to render messages
-  function appendMessage(sender, text, cls) {
-    const d = document.createElement('div');
-    d.className = 'msg ' + cls;
-    d.innerHTML = `<strong>${sender}:</strong> ${escapeHtml(text)}`;
-    messagesEl.appendChild(d);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  // Basic sanitize
-  function escapeHtml(str) {
-    return str.replace(/[&<>"'`]/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',"`":'&#96;'})[m]);
-  }
-
-  // OPTIONAL: Simulated model replies (if you want an automatic response living client-side)
-  // NOTE: In a real setup a model (another browser) or a bot would push messages into the same DB.
-  // -- uncomment below to let the site simulate a playful reply 2s after a user message:
-  /*
-  onChildAdded(recent, (snap) => {
-    const val = snap.val();
-    if (auth.currentUser && val.uid !== auth.currentUser.uid) return; // ignore others
-    // show typing, then push a simulated reply
-    typingEl.innerText = 'Model is typing...';
-    setTimeout(async () => {
-      typingEl.innerText = '';
-      await push(ref(db, CHAT_PATH), { uid: 'model', text: 'Hey babe 😉', ts: Date.now() });
-    }, 1500);
-  });
-  */
-
-</script>
 </body>
 </html>
